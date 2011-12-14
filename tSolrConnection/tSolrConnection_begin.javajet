@@ -1,0 +1,55 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List 
+    	java.util.Map		
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+%>
+	org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = null;
+<%    
+	if (Boolean.valueOf(ElementParameterParser.getValue(node, "__USE_JNDI__"))) {
+%>  
+	javax.naming.Context envContext = (javax.naming.Context) new javax.naming.InitialContext().lookup(<%=ElementParameterParser.getValue(node, "__JNDICONTEXT__")%>);
+	Object obj<%=cid%> = envContext.lookup(<%=ElementParameterParser.getValue(node, "__JNDINAME__")%>);
+	if (obj<%=cid%>!=null) {
+		solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer) obj<%=cid%>; 	
+	} 
+<%
+	}
+%>	
+	
+	if (solrServer<%=cid%>==null) {
+<%    
+	if (Boolean.valueOf(ElementParameterParser.getValue(node, "__USE_EMBEDDED__"))) {
+		String solrHome = ElementParameterParser.getValue(node, "__FOLDER__");
+		String core = ElementParameterParser.getValue(node, "__CORENAME__");
+%>
+		org.apache.solr.core.CoreContainer coreContainer<%=cid%> = new org.apache.solr.core.CoreContainer();
+		org.apache.solr.core.SolrConfig solrConfig<%=cid%> = new org.apache.solr.core.SolrConfig(<%=solrHome %>, "solrconfig.xml", null);
+		org.apache.solr.core.CoreDescriptor coreDescriptor<%=cid%> = new org.apache.solr.core.CoreDescriptor(coreContainer<%=cid%>, <%=core%>, <%=solrHome%>);
+		org.apache.solr.core.SolrCore solrCore<%=cid%> = new org.apache.solr.core.SolrCore(<%=core%>, <%=solrHome%> + "/data", solrConfig<%=cid%>, null, coreDescriptor<%=cid%>);
+		coreContainer<%=cid%>.register(solrCore<%=cid%>, false);
+		org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = new org.apache.solr.client.solrj.embedded.EmbeddedSolrServer(coreContainer<%=cid%>, <%=core%>);
+<%
+	} else {
+%>
+		org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = new org.apache.solr.client.solrj.impl.CommonsHttpSolrServer(<%=ElementParameterParser.getValue(node, "__URL__")%>);
+<%
+	}
+%>
+	}	
+	globalMap.put("solrServer_<%=cid%>", solrServer<%=cid%>);
+	

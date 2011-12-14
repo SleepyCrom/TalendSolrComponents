@@ -1,0 +1,51 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List 
+    	java.util.Map		
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+%>
+	org.apache.solr.common.SolrInputDocument doc<%=cid%> = new org.apache.solr.common.SolrInputDocument();
+<%
+	List<IMetadataTable> metadatas = node.getMetadataList();
+	if ((metadatas!=null) && (metadatas.size()>0)) {
+		IMetadataTable metadata = metadatas.get(0);
+		if (metadata!=null) {
+			for (IConnection conn : node.getIncomingConnections()) {
+				if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+					for (IMetadataColumn column : metadata.getListColumns()) {
+%>			
+	doc<%=cid%>.put("<%=column.getLabel() %>", <%=conn.getName() %>.<%=column.getLabel() %>);
+<%
+					}
+				}
+			}
+		}
+	}
+%>
+	if (doc<%=cid%>.size()>0) {
+		documents<%=cid%>.add(doc<%=cid%>);
+		if (documents<%=cid%>.size()==batchSize<%=cid%>) {
+			solrServer<%=cid %>.add(documents<%=cid%>);
+			documents<%=cid%>.clear();
+		}
+		
+		if ((doc<%=cid%>.size()==commitBatchSize<%=cid%>) && (doCommit<%=cid %>)) {
+			solrServer<%=cid %>.commit();
+		}
+		
+		nb_line_<%=cid%>++;		
+	}

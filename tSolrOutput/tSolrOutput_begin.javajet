@@ -1,0 +1,42 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List 
+    	java.util.Map		
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+    
+    String solrServer = "solrServer_" + ElementParameterParser.getValue(node, "__SOLR_SERVER__");
+%>
+
+boolean doCommit<%=cid%> = <%=Boolean.valueOf(ElementParameterParser.getValue(node, "__DO_COMMIT__"))%>
+
+org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("<%=solrServer%>");
+if(solrServer<%=cid%> == null) {
+	throw new IllegalArgumentException("Solr server is null, component(<%=cid%>) not connected to a tSolrConnection!");
+}
+
+int batchSize<%=cid%> = <%=ElementParameterParser.getValue(node, "__BATCHSIZE__")%>;
+if (!<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__USE_BATCH__"))%>) {
+	batchSize<%=cid%> = 1;
+}
+
+int commitBatchSize<%=cid%> = <%=ElementParameterParser.getValue(node, "__COMMITBATCHSIZE__")%>;
+if (!<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__USE_COMMITBATCH__"))%>) {
+	commitBatchSize<%=cid%> = -1;
+}
+
+int nb_line_<%=cid%> = 0;	
+java.util.List<org.apache.solr.common.SolrInputDocument> documents<%=cid%> = new java.util.ArrayList<org.apache.solr.common.SolrInputDocument>(batchSize<%=cid%>); 

@@ -1,0 +1,65 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List 
+    	java.util.Map		
+	" 
+%>
+
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+    
+    String solrServer = "solrServer_" + ElementParameterParser.getValue(node, "__SOLR_SERVER__");
+%>
+	org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("<%=solrServer%>");
+	if(solrServer<%=cid%> == null) {
+		throw new IllegalArgumentException("Solr server is null, component(<%=cid%>) not connected to a tSolrConnection!");
+	}
+	
+	java.util.List<Object> talendParameters<%=cid%> = new java.util.ArrayList<Object>();
+<%
+	List<IMetadataTable> metadatas = node.getMetadataList();
+	if ((metadatas!=null) && (metadatas.size()>0)) {
+		IMetadataTable metadata = metadatas.get(0);
+		if (metadata!=null) {
+			for (IConnection conn : node.getIncomingConnections()) {
+				if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+					for (IMetadataColumn column : metadata.getListColumns()) {
+%>			
+							talendParameters<%=cid%>.add(<%=conn.getName() %>.<%=column.getLabel() %>);
+							System.out.println("<%=conn.getName() %>:"+<%=conn.getName() %>.<%=column.getLabel() %>);
+<%
+					}
+				}
+			}
+		}
+	}
+%>
+	org.apache.solr.client.solrj.SolrQuery query<%=cid%> = new org.apache.solr.client.solrj.SolrQuery(String.format("<%=ElementParameterParser.getValue(node, "__QUERY__")%>", (Object[]) talendParameters<%=cid%>.toArray(new Object[talendParameters<%=cid%>.size()])));
+	query<%=cid%>.setStart(0);
+	query<%=cid%>.setRows(<%=ElementParameterParser.getValue(node, "__ROWSIZE__")%>);
+	org.apache.solr.client.solrj.QueryResponse response = solrServer<%=cid%>.query(org.apache.solr.common.params.SolrParams.toSolrParams(query.toNamedList()));
+<% 
+	for (IConnection conn : node.getOutgoingSortedConnections()) {
+		if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+%>
+	for (org.apache.solr.common.SolrDocument item : response<%=cid%>.getResults()) {
+		for (String key : item.keySet()) {
+			<%=conn.getName()%>.key = item.get(key);
+		}
+	}
+<%
+		}
+	}
+%>	
+	globalMap.put("<%=cid %>_NB_LINE",result<%=cid %>.size());

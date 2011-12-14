@@ -1,0 +1,11 @@
+src/local
+bin
+.settings
+target
+.metadata
+.project
+.classpath
+.idea/workspace.xml
+.DS_Store
+*.~
+*~
