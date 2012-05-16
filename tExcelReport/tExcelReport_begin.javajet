@@ -1,0 +1,311 @@
+<%@ jet
+imports="
+    org.talend.core.model.process.IConnection
+    org.talend.core.model.process.IConnectionCategory
+    org.talend.core.model.process.INode
+    org.talend.core.model.process.ElementParameterParser
+    org.talend.core.model.metadata.IMetadataTable
+    org.talend.core.model.metadata.IMetadataColumn
+    org.talend.designer.codegen.config.CodeGeneratorArgument
+    org.talend.core.model.metadata.types.JavaTypesManager
+    org.talend.core.model.metadata.types.JavaType
+    java.util.*
+    java.io.*
+    java.net.*
+    java.lang.reflect.*
+    java.util.jar.*
+"
+%>
+
+<%
+
+//YUK THESE TEMPLATES ARE NASTY - FIND OUT IF YOU CAN CREATE FUNCTION IN THEM TO REUSE LOGIC
+
+	CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+	INode node = (INode)codeGenArgument.getArgument();
+
+	String templateFilename = ElementParameterParser.getValue(node, "__TEMPLATEFILENAME__");
+	String outputFilename = ElementParameterParser.getValue(node, "__OUTPUTFILENAME__");
+	String sheetname = ElementParameterParser.getValue(node, "__SHEETNAME__");
+	String cid = "";
+
+	%>
+	String templateFileName = <%=templateFilename %>;
+	String outputFilename = <%=outputFilename %>;
+	<%
+		HashMap<String, ArrayList> objectMap = new HashMap<String, ArrayList>();
+	try {
+		cid = node.getUniqueName();
+		List<Map<String, String>> groups = (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__GROUPBYS__");
+		List<Map<String, String>> objects =  (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__OBJECTNAMESTABLE__");
+
+		//setup the objects we require to establish relationships
+
+		//TOO avoid many nested loops and code which would be a nightmare to read later on (it's already too deeply nested)
+		//but I can't use methods and so have to write it in rediculously large blocks, so here we only deal with defining
+		//the objects and it's fields (eg Emp -> String Name, Double Salary, Double bonus) we will deal with the nesting of
+		//objects in the block after this
+
+		List<IMetadataTable> metadatas = node.getMetadataList();
+		if ((metadatas!=null)&&(metadatas.size()>0)) {
+			IMetadataTable metadata = metadatas.get(0);
+			if (metadata!=null) {
+				//aWriter.write("HELLO\n");
+				List<IMetadataColumn> columns = metadata.getListColumns();
+				int sizeColumns = columns.size();
+				%>
+					java.lang.Integer rowCount = new java.lang.Integer(0);
+					java.util.HashMap parentObjects = new java.util.LinkedHashMap();
+					java.util.Collection objects = new java.util.LinkedHashSet();
+				<%
+
+				for (int i=0 ; i<objects.size(); i++) {
+					Map<String, String> object = objects.get(i);
+					int objectID = Integer.parseInt(object.get("OBJECT_ID"));
+					String objectName = object.get("OBJECTNAME");
+
+					%>
+					java.util.Collection <%=objectName%>Collection = new java.util.LinkedHashSet();
+					<%
+
+					//aWriter.write("ObjectID is " + objectID + "object name is " + objectName +"\n");
+					//This will be used to define the variable names and type in the class we generate and jar up
+					ArrayList<String> classVariables = new ArrayList<String>();
+					for (int j=0 ; j<groups.size(); j++) {
+						//get the columns associdated with this object
+						Map<String, String> fields = groups.get(j);
+						int fieldObjectNo = Integer.parseInt(fields.get("OBJECT_GROUP"));
+						String fieldName = fields.get("SCHEMA_COLUMN");
+						if (fieldObjectNo == objectID) {
+							for (int k=0; k < sizeColumns; k++) {
+							//get the meta data associated with the column
+								IMetadataColumn column = columns.get(k);
+								JavaType javaType = JavaTypesManager.getJavaTypeFromId(column.getTalendType());
+								boolean isPrimitive = JavaTypesManager.isJavaPrimitiveType( javaType, column.isNullable());
+								String columnName = column.getLabel();
+								if (columnName.compareTo(fieldName) == 0) {
+									//ok this is the correct column - determine the data type
+									String dataType = "";
+									String variableDetails;
+
+									if(isPrimitive) {
+										if(javaType == JavaTypesManager.BYTE) {
+											dataType = "java.lang.Byte.class";
+										}
+										else if(javaType == JavaTypesManager.SHORT) {
+											dataType = "java.lang.Short.class";
+										}										
+										else if(javaType == JavaTypesManager.INTEGER) {
+											dataType = "java.lang.Integer.class";
+										}
+										else if(javaType == JavaTypesManager.LONG) {
+											dataType = "java.lang.Long.class";
+										}										
+										else if(javaType == JavaTypesManager.FLOAT) {
+											dataType = "java.lang.Float.class";
+										}
+										else if(javaType == JavaTypesManager.DOUBLE) {
+											dataType = "java.lang.Double.class";
+										}
+										else if(javaType == JavaTypesManager.BOOLEAN) {
+											dataType = "java.util.Boolean.class";
+										}
+										else if(javaType == JavaTypesManager.CHARACTER) {
+											dataType = "java.lang.Character.class";
+										} else {
+											dataType = "java.lang.Double.class";
+										}										
+									}else {
+										if(javaType == JavaTypesManager.BOOLEAN) {
+											dataType = "java.util.Boolean.class";
+										}
+										else if(javaType == JavaTypesManager.BIGDECIMAL) {
+											dataType = "java.math.BigDecimal.class";
+						
+										}				
+										else if(javaType == JavaTypesManager.BYTE) {
+											dataType = "java.lang.Byte.class";
+										}
+										else if(javaType == JavaTypesManager.BYTE_ARRAY) {
+											dataType = "java.lang.Byte.class";
+										}				
+										else if(javaType == JavaTypesManager.CHARACTER) {
+											dataType = "java.lang.Character.class";
+										}
+										else if(javaType == JavaTypesManager.DATE) {
+											dataType = "java.util.Date.class";
+										}
+										else if(javaType == JavaTypesManager.DOUBLE) {
+											dataType = "java.lang.Double.class";
+										}
+										else if(javaType == JavaTypesManager.INTEGER) {
+											dataType = "java.lang.Integer.class";
+										}
+										else if(javaType == JavaTypesManager.LONG) {
+											dataType = "java.lang.Long.class";
+										}
+										else if(javaType == JavaTypesManager.FLOAT) {
+											dataType = "java.lang.Float.class";
+										}
+										else if(javaType == JavaTypesManager.SHORT) {
+											dataType = "java.lang.Short.class";
+										}
+										else if(javaType == JavaTypesManager.STRING) {
+											dataType = "java.lang.String.class";
+										}				
+										else {
+											dataType = "java.lang.String.class";
+										}	
+									}
+
+									variableDetails =   "\"" +  columnName + "\"," + dataType;
+									classVariables.add(variableDetails);
+								}
+							}
+						objectMap.put(objectName,classVariables);
+						}
+					}
+				}
+			}
+
+		}
+
+	}catch (Exception z) {
+		z.printStackTrace();
+		System.exit(1);
+	}
+
+	//Now deal with nested objects
+	//eg Dept -> int DeptID, String DeptName, int NoEmployess, Employee[] Employees
+	//In other words one department can contain many employee objects
+	//Therefore we will create an array of the child objects within the parent object
+
+	HashMap<String, HashMap<String, String>> nestedObjectDetails = new HashMap<String, HashMap<String, String>>();
+	List<Map<String, String>> objectNesting =  (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__OBJECTNESTING__");
+	List<Map<String, String>> objects =  (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__OBJECTNAMESTABLE__");
+	HashMap<String, ArrayList> parentChildMap = new HashMap<String, ArrayList>();
+	HashMap<String, ArrayList> childParentMap = new HashMap<String, ArrayList>();
+	Boolean hasNesting = false;
+	%>
+		java.util.HashMap<String, java.util.ArrayList> parentChildMap = new java.util.HashMap<String, java.util.ArrayList>();
+		java.util.HashMap<String, java.util.ArrayList> childParentMap = new java.util.HashMap<String, java.util.ArrayList>();
+		Boolean hasNesting = false;
+	<%
+	
+	for (int k=0; k < objectNesting.size() ; k++) {
+	        hasNesting = true;
+		
+		Map<String, String> fields =objectNesting.get(k);
+		int parentObjectID = Integer.parseInt(fields.get("PARENT_OBJECT"));
+		String parentField = fields.get("PARENT_FIELD");
+		int childObjectID = Integer.parseInt(fields.get("CHILD_OBJECT"));
+		String childField = fields.get("CHILD_FIELD");
+		String childObjectName = "";
+		String parentObjectName = "";
+		for (int m=0 ; m<objects.size() ; m++) {
+			Map<String, String> currentObject = objects.get(m);
+			int currentObjectID = Integer.parseInt(currentObject.get("OBJECT_ID"));
+			String currentObjectName = currentObject.get("OBJECTNAME");
+			if (currentObjectID == parentObjectID) {
+				parentObjectName = currentObjectName;
+			}
+			else if(currentObjectID == childObjectID) {
+				childObjectName = currentObjectName;
+			}
+		}
+		
+		ArrayList<String> childObjects = null;
+		
+		//An object could have multiple children of different object types
+		//The blow block caters for this
+		
+		if (! parentChildMap.containsKey(parentObjectName)) {
+			childObjects = new ArrayList<String>();
+			childObjects.add(childObjectName);
+			parentChildMap.put(parentObjectName, childObjects);
+		} else {
+			childObjects = parentChildMap.get(parentObjectName);
+			//Have we come across this child before ?
+			if (childObjects.indexOf(childObjectName) == -1) {
+				childObjects.add(childObjectName);
+			}
+		}
+	}
+
+	if (hasNesting) {
+		//inject the information into the generated code
+		%>
+			hasNesting = true;
+		<%
+	}
+	
+	// Add the necessary collections and populate the maps 
+	
+	for(Map.Entry<String, ArrayList> e : parentChildMap.entrySet()) {
+		String parentObjectName = e.getKey();
+		ArrayList<String> childObjects = e.getValue();
+		
+		%>
+			java.util.ArrayList<String> <%=parentObjectName%>ChildObjects = new java.util.ArrayList<String>();
+		<%
+
+		
+		for (String childObjectName : childObjects) {
+			%>
+				<%=parentObjectName%>ChildObjects.add("<%=childObjectName%>");
+				java.util.HashMap<String, org.apache.commons.beanutils.DynaBean> <%=parentObjectName%><%=childObjectName%>Map = 
+				new java.util.HashMap<String, org.apache.commons.beanutils.DynaBean>();				
+			<%
+		}
+		
+		%>
+			parentChildMap.put("<%=parentObjectName%>", <%=parentObjectName%>ChildObjects);			
+		<%
+		
+	}
+	
+	
+	//OK Define the dynabeans properties and dynaClass
+
+	Iterator keyValuePairs = objectMap.entrySet().iterator();
+
+	for (int i=0 ; i < objectMap.size() ; i++) {
+		Map.Entry mapentry = (Map.Entry) keyValuePairs.next();
+		String objectName = (String) mapentry.getKey();
+		ArrayList<String> fieldData = (ArrayList<String>) mapentry.getValue();
+
+		//Add the properties and dynaClasses to the generated code
+		%>
+			org.apache.commons.beanutils.DynaProperty[] <%=objectName%>Properties =
+			{
+				<%
+				Iterator it = fieldData.iterator();
+				while(it.hasNext()) {
+					String classType = it.next().toString();
+					%>
+					new org.apache.commons.beanutils.DynaProperty(<%=classType%>),
+					<%
+				}
+				%>
+				<%
+				if (hasNesting && parentChildMap.containsKey(objectName)) {
+					ArrayList<String> children =  parentChildMap.get(objectName);
+					for (String child : children) {
+						%>
+						new org.apache.commons.beanutils.DynaProperty("<%=child%>" , java.util.Collection.class),
+						<%
+					}
+				}
+				%>	
+			};
+		<%
+		
+		%>
+			org.apache.commons.beanutils.DynaClass <%=objectName%>DynaClass =
+				new org.apache.commons.beanutils.BasicDynaClass("<%=objectName%>", null, <%=objectName%>Properties);
+		<%
+				
+	}
+%>
+
+int nb_line_<%=cid%> = 0;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <COMPONENT> 
-  <HEADER AUTHOR="Audun Wilhelmsen" COMPATIBILITY="ALL" DATA_AUTO_PROPAGATE="true" PLATEFORM="ALL" RELEASE_DATE="20080229A" SERIAL="" STARTABLE="false" STATUS="ALPHA" VERSION="0.102"> 
+  <HEADER AUTHOR="Audun Wilhelmsen" COMPATIBILITY="ALL" DATA_AUTO_PROPAGATE="true" PLATEFORM="ALL" RELEASE_DATE="20080229A" SERIAL="" STARTABLE="true" STATUS="ALPHA" VERSION="0.102"> 
     <SIGNATURE></SIGNATURE> 
   </HEADER>  
   <FAMILIES> 
@@ -35,55 +35,30 @@
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS>
-      <IMPORT MODULE="antlr-2.7.2.jar" NAME="antlr-2.7.2" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-beanutils-1.7.0.jar" NAME="commons-beanutils-1.7.0" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-chain-1.1.jar" NAME="commons-chain-1.1" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-codec-1.4.jar" NAME="commons-codec-1.4" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-collections-3.2.1.jar" NAME="commons-collections-3.2.1" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-digester-1.8.jar" NAME="commons-digester-1.8" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-fileupload-1.2.1.jar" NAME="commons-fileupload-1.2.1" REQUIRED="true"/>  
+      <IMPORT MODULE="commons-codec-1.5.jar" NAME="commons-codec-1.5" REQUIRED="true"/>  
       <IMPORT MODULE="commons-httpclient-3.1.jar" NAME="commons-httpclient-3.1" REQUIRED="true"/>  
       <IMPORT MODULE="commons-io-1.4.jar" NAME="commons-io-1.4" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-lang-2.4.jar" NAME="commons-lang-2.4" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-logging-1.1.1.jar" NAME="commons-logging-1.1.1" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-validator-1.3.1.jar" NAME="commons-validator-1.3.1" REQUIRED="true"/>  
-      <IMPORT MODULE="dom4j-1.1.jar" NAME="dom4j-1.1" REQUIRED="true"/>  
       <IMPORT MODULE="geronimo-stax-api_1.0_spec-1.0.1.jar" NAME="geronimo-stax-api_1.0_spec-1.0.1" REQUIRED="true"/>  
-      <IMPORT MODULE="jakarta-regexp-1.4.jar" NAME="jakarta-regexp-1.4" REQUIRED="true"/>  
-      <IMPORT MODULE="jline-0.9.94.jar" NAME="jline-0.9.94" REQUIRED="true"/>  
-      <IMPORT MODULE="log4j-1.2.16.jar" NAME="log4j-1.2.16" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-analyzers-3.4.0.jar" NAME="lucene-analyzers-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-core-3.4.0.jar" NAME="lucene-core-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-grouping-3.4.0.jar" NAME="lucene-grouping-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-highlighter-3.4.0.jar" NAME="lucene-highlighter-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-memory-3.4.0.jar" NAME="lucene-memory-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-misc-3.4.0.jar" NAME="lucene-misc-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-queries-3.4.0.jar" NAME="lucene-queries-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-spatial-3.4.0.jar" NAME="lucene-spatial-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-spellchecker-3.4.0.jar" NAME="lucene-spellchecker-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="oro-2.0.8.jar" NAME="oro-2.0.8" REQUIRED="true"/>  
+      <IMPORT MODULE="jcl-over-slf4j-1.6.1.jar" NAME="jcl-over-slf4j-1.6.1" REQUIRED="true"/>  
+      <IMPORT MODULE="wstx-asl-3.2.7.jar" NAME="wstx-asl-3.2.7.jar" REQUIRED="true"/>  
       <IMPORT MODULE="slf4j-api-1.6.2.jar" NAME="slf4j-api-1.6.2" REQUIRED="true"/>  
-      <IMPORT MODULE="slf4j-jdk14-1.6.2.jar" NAME="slf4j-jdk14-1.6.2" REQUIRED="true"/>  
-      <IMPORT MODULE="solr-commons-csv-3.4.0.jar" NAME="solr-commons-csv-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="solr-core-3.4.0.jar" NAME="solr-core-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="solr-noggit-3.4.0.jar" NAME="solr-noggit-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="solr-solrj-3.4.0.jar" NAME="solr-solrj-3.4.0" REQUIRED="true"/>  
-      <IMPORT MODULE="spring-aop-3.0.6.RELEASE.jar" NAME="spring-aop-3.0.6.RELEASE" REQUIRED="true"/>  
-      <IMPORT MODULE="spring-asm-3.0.6.RELEASE.jar" NAME="spring-asm-3.0.6.RELEASE" REQUIRED="true"/>  
-      <IMPORT MODULE="spring-beans-3.0.6.RELEASE.jar" NAME="spring-beans-3.0.6.RELEASE" REQUIRED="true"/>  
-      <IMPORT MODULE="spring-context-3.0.6.RELEASE.jar" NAME="spring-context-3.0.6.RELEASE" REQUIRED="true"/>  
-      <IMPORT MODULE="spring-core-3.0.6.RELEASE.jar" NAME="spring-core-3.0.6.RELEASE" REQUIRED="true"/>  
-      <IMPORT MODULE="spring-expression-3.0.6.RELEASE.jar" NAME="spring-expression-3.0.6.RELEASE" REQUIRED="true"/>  
-      <IMPORT MODULE="sslext-1.2-0.jar" NAME="sslext-1.2-0" REQUIRED="true"/>  
-      <IMPORT MODULE="stax-api-1.0.1.jar" NAME="stax-api-1.0.1" REQUIRED="true"/>  
-      <IMPORT MODULE="struts-core-1.3.8.jar" NAME="struts-core-1.3.8" REQUIRED="true"/>  
-      <IMPORT MODULE="struts-taglib-1.3.8.jar" NAME="struts-taglib-1.3.8" REQUIRED="true"/>  
-      <IMPORT MODULE="struts-tiles-1.3.8.jar" NAME="struts-tiles-1.3.8" REQUIRED="true"/>  
-      <IMPORT MODULE="velocity-1.6.4.jar" NAME="velocity-1.6.4" REQUIRED="true"/>  
-      <IMPORT MODULE="velocity-tools-2.0.jar" NAME="velocity-tools-2.0" REQUIRED="true"/>  
-      <IMPORT MODULE="wstx-asl-3.2.7.jar" NAME="wstx-asl-3.2.7" REQUIRED="true"/>  
-      <IMPORT MODULE="zookeeper-3.3.1.jar" NAME="zookeeper-3.3.1" REQUIRED="true"/> 
+      <IMPORT MODULE="commons-logging-1.1.1.jar" NAME="commons-logging-1.1.1" REQUIRED="true"/>  
+      <IMPORT MODULE="commons-fileupload-1.2.1.jar" NAME="commons-fileupload-1.2.1" REQUIRED="true"/>   
       <IMPORT MODULE="servlet-api.jar" NAME="servlet-api" REQUIRED="true"/> 
+      <IMPORT MODULE="velocity-1.6.4.jar" NAME="velocity-1.6.4" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-analyzers-3.5.0.jar" NAME="lucene-analyzers-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-core-3.5.0.jar" NAME="lucene-core-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-grouping-3.5.0.jar" NAME="lucene-grouping-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-highlighter-3.5.0.jar" NAME="lucene-highlighter-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-memory-3.5.0.jar" NAME="lucene-memory-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-misc-3.5.0.jar" NAME="lucene-misc-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-queries-3.5.0.jar" NAME="lucene-queries-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-spatial-3.5.0.jar" NAME="lucene-spatial-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="lucene-spellchecker-3.5.0.jar" NAME="lucene-spellchecker-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="solr-commons-csv-3.5.0.jar" NAME="solr-commons-csv-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="solr-core-3.5.0.jar" NAME="solr-core-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="solr-noggit-3.5.0.jar" NAME="solr-noggit-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="solr-solrj-3.5.0.jar" NAME="solr-solrj-3.5.0" REQUIRED="true"/>  
 	</IMPORTS> 
   </CODEGENERATION>  
   <RETURNS> 

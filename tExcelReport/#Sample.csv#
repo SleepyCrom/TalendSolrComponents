@@ -1,0 +1,7 @@
+EmpId,name,EmpDeptId,salary,bonus,age,DeptId,DeptName
+1,Hugo,1,200,500,31,1,Technology
+2,Lee,1,200,600,32,1,Technology
+3,Paul,1,120,350,35,1,Technology
+4,Karen,1,250,800,32,1,Technolgy
+5,Leo,2,80,150,18,2,Operations
+6,Sasha,2,150,750,39,2,Operations
