@@ -1,0 +1,188 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List 
+    	java.util.Map 
+    	java.util.HashMap		
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+ 
+ 	List<Map<String,String>> talendCodeMapping = (List<Map<String,String>>)ElementParameterParser.getObjectValueXML(node, "__HYBRID_MAPPING__");
+	Map<String,String> hybridCodeMapping = new HashMap<String, String>(talendCodeMapping.size()); 
+	for (Map<String, String> map : talendCodeMapping) { 
+		String key = map.get("SCHEMA_COLUMN");
+		String code = map.get("EXTRACTION_CODE");
+		if ((code!=null) && (code.length()>0)) {
+			code = code.replace("company.", "company"+cid+".");
+			code = code.replace("company,", "company"+cid+",");
+			code = code.replace("company)", "company"+cid+")");
+			code = code.replace("person.", "person"+cid+".");
+			code = code.replace("person,", "person"+cid+",");				
+			code = code.replace("person)", "person"+cid+")");
+			
+			hybridCodeMapping.put(key, code);
+		}
+	}    
+    
+ 	talendCodeMapping = (List<Map<String,String>>)ElementParameterParser.getObjectValueXML(node, "__COMPANY_MAPPING__");
+	Map<String,String> companyCodeMapping = new HashMap<String, String>(talendCodeMapping.size()); 
+	for (Map<String, String> map : talendCodeMapping) { 
+		String key = map.get("SCHEMA_COLUMN");
+		String code = map.get("EXTRACTION_CODE");
+		if ((code!=null) && (code.length()>0)) {
+			code = code.replace("company.", "company"+cid+".");
+			code = code.replace("company,", "company"+cid+",");
+			code = code.replace("company)", "company"+cid+")");
+			
+			companyCodeMapping.put(key, code);
+		}
+	}    
+    
+ 	talendCodeMapping = (List<Map<String,String>>)ElementParameterParser.getObjectValueXML(node, "__PERSON_MAPPING__");
+	Map<String,String> personCodeMapping = new HashMap<String, String>(talendCodeMapping.size()); 
+	for (Map<String, String> map : talendCodeMapping) { 
+		String key = map.get("SCHEMA_COLUMN");
+		String code = map.get("EXTRACTION_CODE");
+		if ((code!=null) && (code.length()>0)) {
+			code = code.replace("person.", "person"+cid+".");
+			code = code.replace("person,", "person"+cid+",");				
+			code = code.replace("person)", "person"+cid+")");
+			
+			personCodeMapping.put(key, code);
+		}
+	}        
+%>
+try {
+no.o1881.domain.Unit unit<%=cid%> = null;
+
+Object domainObject<%=cid%> = <%=ElementParameterParser.getValue(node, "__DOMAIN_OBJECT__")%>;
+if (domainObject<%=cid%>==null) {
+	throw new RuntimeException("Component(<%=cid%>): Domain Object resource is null!");
+} else if (domainObject<%=cid%> instanceof java.io.Reader) {
+	unit<%=cid%> = reader<%=cid%>.unmarshal((java.io.Reader) domainObject<%=cid%>);
+} else if (domainObject<%=cid%> instanceof java.io.InputStream) {
+	unit<%=cid%> = reader<%=cid%>.unmarshal((java.io.InputStream) domainObject<%=cid%>);
+} else if (domainObject<%=cid%> instanceof String) {
+	unit<%=cid%> = reader<%=cid%>.unmarshal(new java.io.StringReader((String) domainObject<%=cid%>));
+} else {
+	throw new RuntimeException("Component(<%=cid%>): Unknown domain object resources("+domainObject<%=cid%>+")");
+}
+
+boolean isPerson<%=cid%> = false;
+boolean isCompany<%=cid%> = false;
+
+if (unit<%=cid%>.getClassifications()!=null) {
+	for (no.o1881.domain.Taxonomy taxonomy : unit<%=cid%>.getClassifications().getClassification()) {
+		if ("Company".equals(taxonomy.getName())) {
+			isCompany<%=cid%> = true;
+		}
+		if ("Person".equals(taxonomy.getName())) {
+			isPerson<%=cid%> = true;
+		}
+	}
+}
+
+boolean isHybrid<%=cid%> = isPerson<%=cid%> && isCompany<%=cid%>;
+
+no.o1881.domain.Company company<%=cid%> = null;
+no.o1881.domain.Person person<%=cid%> = null;
+
+if (isHybrid<%=cid%>) {
+	company<%=cid%> = (no.o1881.domain.Company) unit<%=cid%>;
+	person<%=cid%> = company<%=cid%>.getPerson();
+<%
+	boolean hybridUseRules = Boolean.valueOf(ElementParameterParser.getValue(node, "__HYBRID_USE_RULES__"));
+	
+	Map<String,String> codeMapping = new HashMap<String, String>(hybridCodeMapping.size()); 
+	if (hybridUseRules) {
+		boolean hybridCompanyAsDefault = Boolean.valueOf(ElementParameterParser.getValue(node, "__HYBRID_COMPANY_AS_DEFAULT__"));
+		boolean hybridPersonAsDefault = Boolean.valueOf(ElementParameterParser.getValue(node, "__HYBRID_PERSOM_AS_DEFAULT__"));
+		boolean hybridCompanyAndPersonAsDefault = Boolean.valueOf(ElementParameterParser.getValue(node, "__HYBRID_COMPANY_AND_PERSON_AS_DEFAULT__"));
+		boolean hybridPersonAndCompanyAsDefault = Boolean.valueOf(ElementParameterParser.getValue(node, "__HYBRID_PERSON_AND_COMPANY_AS_DEFAULT__"));
+		
+		if (hybridCompanyAsDefault || hybridCompanyAndPersonAsDefault) {
+			codeMapping.putAll(companyCodeMapping);
+		} else if (hybridPersonAsDefault || hybridPersonAndCompanyAsDefault) {
+			codeMapping.putAll(personCodeMapping);
+		}
+		
+		if (hybridCompanyAndPersonAsDefault) {
+			codeMapping.putAll(personCodeMapping);
+		} else if (hybridPersonAndCompanyAsDefault) {
+			codeMapping.putAll(companyCodeMapping);
+		}  
+ 	}
+	codeMapping.putAll(hybridCodeMapping);
+	
+	List<IMetadataTable> metadatas = node.getMetadataList();
+	if ((metadatas!=null) && (metadatas.size()>0)) {
+		IMetadataTable metadata = metadatas.get(0);
+		if (metadata!=null) {
+			for (IConnection conn : node.getOutgoingSortedConnections()) {
+				if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+					for (IMetadataColumn column : metadata.getListColumns()) {
+%>			
+						<%=conn.getName()%>.<%=column.getLabel()%> = <%=codeMapping.get(column.getLabel())%>;
+<%
+					}
+				}
+			}
+		}
+	}
+%>
+} else if (isPerson<%=cid%>) {
+	person<%=cid%> = (no.o1881.domain.Person) unit<%=cid%>;
+<%
+	if ((metadatas!=null) && (metadatas.size()>0)) {
+		IMetadataTable metadata = metadatas.get(0);
+		if (metadata!=null) {
+			for (IConnection conn : node.getOutgoingSortedConnections()) {
+				if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+					for (IMetadataColumn column : metadata.getListColumns()) {
+%>			
+						<%=conn.getName()%>.<%=column.getLabel()%> = <%=personCodeMapping.get(column.getLabel())%>;
+<%
+					}
+				}
+			}
+		}
+	}
+%>
+} else if (isCompany<%=cid%>) {
+	company<%=cid%> = (no.o1881.domain.Company) unit<%=cid%>;
+<%
+	if ((metadatas!=null) && (metadatas.size()>0)) {
+		IMetadataTable metadata = metadatas.get(0);
+		if (metadata!=null) {
+			for (IConnection conn : node.getOutgoingSortedConnections()) {
+				if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+					for (IMetadataColumn column : metadata.getListColumns()) {
+%>			
+						<%=conn.getName()%>.<%=column.getLabel()%> = <%=companyCodeMapping.get(column.getLabel())%>;
+<%
+					}
+				}
+			}
+		}
+	}
+%>
+} else {
+	throw new RuntimeException("Component(<%=cid%>): Unknown domain object type("+unit<%=cid%>+"), neither Company, Person or Hybrid! (This should never happend)");
+}
+} catch (Exception e) {
+		e.printStackTrace();
+	}
+
+nb_line_<%=cid%>++;

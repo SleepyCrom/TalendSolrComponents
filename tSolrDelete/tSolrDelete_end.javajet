@@ -18,12 +18,10 @@
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();	
+    
+    if (Boolean.valueOf(ElementParameterParser.getValue(node, "__DO_COMMIT__"))) {
 %>
-solrServer<%=cid%>.commit();
+		solrServer<%=cid %>.commit(<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__COMMIT_WAITFLUSH__"))%>, <%=Boolean.valueOf(ElementParameterParser.getValue(node, "__COMMIT_WAITSEARCHER__"))%>);
 <%
-if (Boolean.valueOf(ElementParameterParser.getValue(node, "__OPTIMIZE__"))) {
-%>
-	solrServer<%=cid %>.optimize(<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__WAITFLUSH__"))%>, <%=Boolean.valueOf(ElementParameterParser.getValue(node, "__WAITSEARCHER__"))%>);
-<%
-}
+    }
 %>

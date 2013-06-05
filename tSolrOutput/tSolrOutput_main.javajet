@@ -19,34 +19,35 @@
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();	
 %>
-	org.apache.solr.common.SolrInputDocument doc<%=cid%> = new org.apache.solr.common.SolrInputDocument();
+org.apache.solr.common.SolrInputDocument doc<%=cid%> = new org.apache.solr.common.SolrInputDocument();
 <%
 	List<IMetadataTable> metadatas = node.getMetadataList();
 	if ((metadatas!=null) && (metadatas.size()>0)) {
 		IMetadataTable metadata = metadatas.get(0);
 		if (metadata!=null) {
 			for (IConnection conn : node.getIncomingConnections()) {
-				if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
-					for (IMetadataColumn column : metadata.getListColumns()) {
-%>			
-	doc<%=cid%>.addField("<%=column.getLabel() %>", <%=conn.getName() %>.<%=column.getLabel() %>);
+				for (IMetadataColumn column : metadata.getListColumns()) {
+%>
+	doc<%=cid%>.addField("<%=column.getLabel() %>", <%=conn.getName()%>.<%=column.getLabel()%>);
 <%
-					}
 				}
 			}
 		}
+	} else {
+		throw new IllegalArgumentException("No metadata, component("+cid+")!");
 	}
 %>
-	if (doc<%=cid%>.size()>0) {
-		documents<%=cid%>.add(doc<%=cid%>);
-		if (documents<%=cid%>.size()==batchSize<%=cid%>) {
-			solrServer<%=cid %>.add(documents<%=cid%>);
-			documents<%=cid%>.clear();
+
+if (doc<%=cid%>.size()>0) {
+	documents<%=cid%>.add(doc<%=cid%>);
+	if (documents<%=cid%>.size()==batchSize<%=cid%>) {
+		solrServer<%=cid%>.add(documents<%=cid%>);
+		if (doCommit<%=cid%>) {
+			solrServer<%=cid%>.commit();
 		}
-		
-		if ((doc<%=cid%>.size()==commitBatchSize<%=cid%>) && (doCommit<%=cid %>)) {
-			solrServer<%=cid %>.commit();
-		}
-		
-		nb_line_<%=cid%>++;		
+
+		documents<%=cid%>.clear();
 	}
+				
+	nb_line_<%=cid%>++;		
+}

@@ -18,18 +18,73 @@
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();	
-	if (Boolean.valueOf(ElementParameterParser.getValue(node, "__USEEMBEDDED__"))) {
-		String solrHome = ElementParameterParser.getValue(node, "__FOLDER__");
-		String core = ElementParameterParser.getValue(node, "__CORENAME__");
-%>		
-    CoreContainer container%=cid%> = new CoreContainer();
-    container%=cid%>.load(<%=solrHome%>, new File(new File(<%=solrHome%>), "solr.xml"));
-	org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = new org.apache.solr.client.solrj.embedded.EmbeddedSolrServer(container<%=cid%>, <%=core%>);
-<%
-	} else {
+
+	String solrCollection = ElementParameterParser.getValue(node, "__COLLECTION__");     
 %>
-	org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = new org.apache.solr.client.solrj.impl.CommonsHttpSolrServer(<%=ElementParameterParser.getValue(node, "__URL__")%>);
 <%
+    if ("true".equals(ElementParameterParser.getValue(node, "__CLOUD_AWARENESS__"))) {
+%>
+	org.apache.solr.client.solrj.impl.CloudSolrServer solrServer_<%=cid%> = new org.apache.solr.client.solrj.impl.CloudSolrServer(<%=ElementParameterParser.getValue(node, "__ZOOKEEPER__")%>);	
+	solrServer_<%=cid%>.setDefaultCollection(<%=solrCollection%>);
+<%
+		String zookeeperClientTimeout = ElementParameterParser.getValue(node, "__ZOOKEEPER_CLIENT_TIMEOUT__");     
+		if ((zookeeperClientTimeout!=null) && (zookeeperClientTimeout.length()>0)) {
+%>
+			solrServer_<%=cid%>.setZkClientTimeout(<%=zookeeperClientTimeout%>);
+<%
+		}
+		
+		String zookeeperConnectionTimeout = ElementParameterParser.getValue(node, "__ZOOKEEPER_CONNECTION_TIMEOUT__"); 
+		if ((zookeeperConnectionTimeout!=null) && (zookeeperConnectionTimeout.length()>0)) {
+%>
+			solrServer_<%=cid%>.setZkConnectTimeout(<%=zookeeperConnectionTimeout%>);
+<%
+		}    
+    } else {
+%>
+	org.apache.solr.client.solrj.impl.HttpSolrServer solrServer_<%=cid%> = new org.apache.solr.client.solrj.impl.HttpSolrServer(<%=ElementParameterParser.getValue(node, "__URL__")%>+"/"+<%=solrCollection%>);	
+<%
+    }
+    
+    if ("true".equals(ElementParameterParser.getValue(node, "__ADV_HTTP_CLIENT__"))) {
+%>
+			solrServer_<%=cid%>.setAllowCompression("true".equals(ElementParameterParser.getValue(node, "__ALLOW_COMPRESSION__")));
+			solrServer_<%=cid%>.setFollowRedirects("true".equals(ElementParameterParser.getValue(node, "__FOLLOW_REDIRECTS__")));
+<%
+		String maxRetries = ElementParameterParser.getValue(node, "__MAX_RETRIES__");     
+		if ((maxRetries!=null) && (maxRetries.length()>0)) {
+%>
+			solrServer_<%=cid%>.setMaxRetries(<%=maxRetries%>);
+<%
+		}
+
+		String connectionTimeout = ElementParameterParser.getValue(node, "__CONNECTION_TIMEOUT__");     
+		if ((connectionTimeout!=null) && (connectionTimeout.length()>0)) {
+%>
+			solrServer_<%=cid%>.setConnectionTimeout(<%=connectionTimeout%>);
+<%
+		}
+
+		String maxTotalConnections = ElementParameterParser.getValue(node, "__MAX_TOTAL_CONNECTIONS__");     
+		if ((maxTotalConnections!=null) && (maxTotalConnections.length()>0)) {
+%>
+			solrServer_<%=cid%>.setMaxTotalConnections(<%=maxTotalConnections%>);
+<%
+		}
+
+		String defaultMaxConnectionsPerHost = ElementParameterParser.getValue(node, "__DEFAULT_MAX_CONNECTIONS_PER_HOST__");     
+		if ((defaultMaxConnectionsPerHost!=null) && (defaultMaxConnectionsPerHost.length()>0)) {
+%>
+			solrServer_<%=cid%>.setDefaultMaxConnectionsPerHost(<%=defaultMaxConnectionsPerHost%>);
+<%
+		}
+
+		String soTimeout = ElementParameterParser.getValue(node, "__SO_TIMEOUT__");     
+		if ((soTimeout!=null) && (soTimeout.length()>0)) {
+%>
+			solrServer_<%=cid%>.setSoTimeout(<%=soTimeout%>);
+<%
+		}
 	}
 %>
-	globalMap.put("solrServer_<%=cid%>", solrServer<%=cid%>);
+globalMap.put("solrServer_<%=cid%>", solrServer_<%=cid%>);

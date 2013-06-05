@@ -21,37 +21,25 @@
   </CONNECTORS>  
   <PARAMETERS> 
     <PARAMETER NAME="SOLR_SERVER" FIELD="COMPONENT_LIST" FILTER="tSolrConnection" NUM_ROW="10" DYNAMIC_SETTINGS="true"/>
-	<PARAMETER NAME="WAITFLUSH" FIELD="CHECK" NUM_ROW="51" REQUIRED="true" REPOSITORY_VALUE="WAITFLUSH"><DEFAULT>true</DEFAULT></PARAMETER>
-	<PARAMETER NAME="WAITSEARCHER" FIELD="CHECK" NUM_ROW="52" REQUIRED="true" REPOSITORY_VALUE="WAITSEARCHER"><DEFAULT>true</DEFAULT></PARAMETER>
+	<PARAMETER NAME="OPTIMIZE_WAITFLUSH" GROUP="OPTIMIZE_GROUP" FIELD="CHECK" NUM_ROW="20" REQUIRED="true" REPOSITORY_VALUE="OPTIMIZE_WAITFLUSH"><DEFAULT>true</DEFAULT></PARAMETER>
+	<PARAMETER NAME="OPTIMIZE_WAITSEARCHER" GROUP="OPTIMIZE_GROUP" FIELD="CHECK" NUM_ROW="30" REQUIRED="true" REPOSITORY_VALUE="OPTIMIZE_WAITSEARCHER"><DEFAULT>true</DEFAULT></PARAMETER>
   </PARAMETERS>  
   <ADVANCED_PARAMETERS> 
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS>
-      <IMPORT MODULE="commons-codec-1.5.jar" NAME="commons-codec-1.5" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-httpclient-3.1.jar" NAME="commons-httpclient-3.1" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-io-1.4.jar" NAME="commons-io-1.4" REQUIRED="true"/>  
-      <IMPORT MODULE="geronimo-stax-api_1.0_spec-1.0.1.jar" NAME="geronimo-stax-api_1.0_spec-1.0.1" REQUIRED="true"/>  
-      <IMPORT MODULE="jcl-over-slf4j-1.6.1.jar" NAME="jcl-over-slf4j-1.6.1" REQUIRED="true"/>  
-      <IMPORT MODULE="wstx-asl-3.2.7.jar" NAME="wstx-asl-3.2.7.jar" REQUIRED="true"/>  
-      <IMPORT MODULE="slf4j-api-1.6.2.jar" NAME="slf4j-api-1.6.2" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-logging-1.1.1.jar" NAME="commons-logging-1.1.1" REQUIRED="true"/>  
-      <IMPORT MODULE="commons-fileupload-1.2.1.jar" NAME="commons-fileupload-1.2.1" REQUIRED="true"/>   
-      <IMPORT MODULE="servlet-api.jar" NAME="servlet-api" REQUIRED="true"/> 
-      <IMPORT MODULE="velocity-1.6.4.jar" NAME="velocity-1.6.4" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-analyzers-3.5.0.jar" NAME="lucene-analyzers-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-core-3.5.0.jar" NAME="lucene-core-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-grouping-3.5.0.jar" NAME="lucene-grouping-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-highlighter-3.5.0.jar" NAME="lucene-highlighter-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-memory-3.5.0.jar" NAME="lucene-memory-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-misc-3.5.0.jar" NAME="lucene-misc-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-queries-3.5.0.jar" NAME="lucene-queries-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-spatial-3.5.0.jar" NAME="lucene-spatial-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="lucene-spellchecker-3.5.0.jar" NAME="lucene-spellchecker-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="solr-commons-csv-3.5.0.jar" NAME="solr-commons-csv-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="solr-core-3.5.0.jar" NAME="solr-core-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="solr-noggit-3.5.0.jar" NAME="solr-noggit-3.5.0" REQUIRED="true"/>  
-      <IMPORT MODULE="solr-solrj-3.5.0.jar" NAME="solr-solrj-3.5.0" REQUIRED="true"/>  
+      <IMPORT MODULE="log4j-1.2.16.jar" NAME="log4j-1.2.16" REQUIRED="true"/>  
+      <IMPORT MODULE="slf4j-log4j12-1.6.4.jar" NAME="slf4j-log4j12-1.6.4" REQUIRED="true"/>  
+      <IMPORT MODULE="solr-solrj-5.0-20121022.221100-89.jar" NAME="solr-solrj-5.0-20121022.221100-89" REQUIRED="true"/>  
+      <IMPORT MODULE="commons-codec-1.4.jar" NAME="commons-codec-1.4" REQUIRED="true"/>  
+      <IMPORT MODULE="zookeeper-3.3.6.jar" NAME="zookeeper-3.3.6" REQUIRED="true"/>  
+      <IMPORT MODULE="commons-io-2.1.jar" NAME="commons-io-2.1" REQUIRED="true"/>  
+      <IMPORT MODULE="httpclient-4.1.3.jar" NAME="httpclient-4.1.3" REQUIRED="true"/>  
+      <IMPORT MODULE="httpcore-4.1.4.jar" NAME="httpcore-4.1.4" REQUIRED="true"/>  
+      <IMPORT MODULE="httpmime-4.1.3.jar" NAME="httpmime-4.1.3" REQUIRED="true"/>  
+      <IMPORT MODULE="wstx-asl-3.2.7.jar" NAME="wstx-asl-3.2.7" REQUIRED="true"/>  
+      <IMPORT MODULE="slf4j-api-1.6.4.jar" NAME="slf4j-api-1.6.4" REQUIRED="true"/>  
+      <IMPORT MODULE="commons-logging-1.1.1.jar" NAME="commons-logging-1.1.1" REQUIRED="true"/> 
 	</IMPORTS> 
   </CODEGENERATION>  
   <RETURNS> 

@@ -18,11 +18,8 @@
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();	
-    
-    String solrServer = "solrServer_" + ElementParameterParser.getValue(node, "__SOLR_SERVER__");
 %>
-
-org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("<%=solrServer%>");
+org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("solrServer_<%=ElementParameterParser.getValue(node, "__SOLR_SERVER__")%>");
 if (solrServer<%=cid%> == null) {
 	throw new IllegalArgumentException("Solr server is null, component(<%=cid%>) not connected to a tSolrConnection!");
 }
@@ -37,7 +34,7 @@ if (solrServer<%=cid%> == null) {
 <%
 	} else if (Boolean.valueOf(ElementParameterParser.getValue(node, "__DELETE_BY_SIMPLE_QUERY__"))) {
 %>
-	solrServer<%=cid %>.deleteByQuery("<%=ElementParameterParser.getValue(node, "__SIMPLE_QUERY__")%>");
+	solrServer<%=cid %>.deleteByQuery(<%=ElementParameterParser.getValue(node, "__SIMPLE_QUERY__")%>);
 <%
 	} 
 %>

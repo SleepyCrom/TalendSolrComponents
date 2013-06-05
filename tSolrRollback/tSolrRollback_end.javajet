@@ -18,20 +18,11 @@
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();	
-    
-    String solrServer = "solrServer_" + ElementParameterParser.getValue(node, "__SOLR_SERVER__");
 %>
+	org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("solrServer_<%=ElementParameterParser.getValue(node, "__SOLR_SERVER__")%>");
 
-org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("<%=solrServer%>");
-if(solrServer<%=cid%> == null) {
-	throw new IllegalArgumentException("Solr server is null, component(<%=cid%>) not connected to a tSolrConnection!");
-}
+	if(solrServer<%=cid%> == null) {
+		throw new IllegalArgumentException("Solr server is null, component(<%=cid%>) not connected to a tSolrConnection!");
+	}
 
-solrServer<%=cid%>.rollback();
-<%
-if (Boolean.valueOf(ElementParameterParser.getValue(node, "__OPTIMIZE__"))) {
-%>
-	solrServer<%=cid %>.optimize(<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__WAITFLUSH__"))%>, <%=Boolean.valueOf(ElementParameterParser.getValue(node, "__WAITSEARCHER__"))%>);
-<%
-}
-%>
+	solrServer<%=cid%>.rollback();
