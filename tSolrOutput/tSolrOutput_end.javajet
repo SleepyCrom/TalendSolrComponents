@@ -20,10 +20,17 @@
     String cid = node.getUniqueName();	
 %>
 	if (documents<%=cid%>.size()>0) {
-		solrServer<%=cid%>.add(documents<%=cid%>);
-		if (doCommit<%=cid%>) {
-			solrServer<%=cid %>.commit(<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__COMMIT_WAITFLUSH__"))%>, <%=Boolean.valueOf(ElementParameterParser.getValue(node, "__COMMIT_WAITSEARCHER__"))%>);
-		}
+		solrServer<%=cid %>.add(documents<%=cid%>);
 	}
-
-	globalMap.put("<%=cid%>_NB_LINE",nb_line_<%=cid%>);
+	
+	if (doCommit<%=cid %>) {
+		solrServer<%=cid %>.commit();
+	}
+	<%
+	if (Boolean.valueOf(ElementParameterParser.getValue(node, "__OPTIMIZE__"))) {
+	%>
+		solrServer<%=cid %>.optimize(<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__WAITFLUSH__"))%>, <%=Boolean.valueOf(ElementParameterParser.getValue(node, "__WAITSEARCHER__"))%>);
+	<%
+	}
+	%>
+	globalMap.put("<%=cid %>_NB_LINE",nb_line_<%=cid%>);

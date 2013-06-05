@@ -17,19 +17,27 @@
 	// Copyright 2011 Audun Wilhelmsen(sleepycrom@hotmail.com). All rights reserved.
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();
-    String cid = node.getUniqueName();	    
+    String cid = node.getUniqueName();	
     
-	boolean doCommit = Boolean.valueOf(ElementParameterParser.getValue(node, "__DO_COMMIT__"));
-	int batchSize = Integer.valueOf(ElementParameterParser.getValue(node, "__BATCHSIZE__"));
+    String solrServer = "solrServer_" + ElementParameterParser.getValue(node, "__SOLR_SERVER__");
 %>
-	org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("solrServer_<%=ElementParameterParser.getValue(node, "__SOLR_SERVER__")%>");
 
-	if(solrServer<%=cid%> == null) {
-		throw new IllegalArgumentException("Solr server is null, component(<%=cid%>) not connected to a tSolrConnection!");
-	}
-	
-	boolean doCommit<%=cid%> = <%=doCommit%>;
-	int batchSize<%=cid%> = <%=batchSize%>;
-	int nb_line_<%=cid%> = 0;	
+boolean doCommit<%=cid%> = <%=Boolean.valueOf(ElementParameterParser.getValue(node, "__DO_COMMIT__"))%>;
 
-	java.util.List<org.apache.solr.common.SolrInputDocument> documents<%=cid%> = new java.util.ArrayList<org.apache.solr.common.SolrInputDocument>(batchSize<%=cid%>); 
+org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("<%=solrServer%>");
+if(solrServer<%=cid%> == null) {
+	throw new IllegalArgumentException("Solr server is null, component(<%=cid%>) not connected to a tSolrConnection!");
+}
+
+int batchSize<%=cid%> = <%=ElementParameterParser.getValue(node, "__BATCHSIZE__")%>;
+if (!<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__USE_BATCH__"))%>) {
+	batchSize<%=cid%> = 1;
+}
+
+int commitBatchSize<%=cid%> = <%=ElementParameterParser.getValue(node, "__COMMITBATCHSIZE__")%>;
+if (!<%=Boolean.valueOf(ElementParameterParser.getValue(node, "__USE_COMMITBATCH__"))%>) {
+	commitBatchSize<%=cid%> = -1;
+}
+
+int nb_line_<%=cid%> = 0;	
+java.util.List<org.apache.solr.common.SolrInputDocument> documents<%=cid%> = new java.util.ArrayList<org.apache.solr.common.SolrInputDocument>(batchSize<%=cid%>); 

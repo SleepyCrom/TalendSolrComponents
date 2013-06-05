@@ -19,4 +19,4 @@
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();	
 %>
-	
+searcher<%=cid %> = null;

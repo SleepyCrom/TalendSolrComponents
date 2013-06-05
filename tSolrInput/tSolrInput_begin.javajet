@@ -13,104 +13,54 @@
     	java.util.Map		
 	" 
 %>
+
 <% 
+	// Copyright 2011 Audun Wilhelmsen(sleepycrom@hotmail.com). All rights reserved.
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();
-    String cid = node.getUniqueName();
+    String cid = node.getUniqueName();	
+    
+    String solrServer = "solrServer_" + ElementParameterParser.getValue(node, "__SOLR_SERVER__");
 %>
-	org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("solrServer_<%=ElementParameterParser.getValue(node, "__SOLR_SERVER__")%>");
-
+	org.apache.solr.client.solrj.SolrServer solrServer<%=cid%> = (org.apache.solr.client.solrj.SolrServer)globalMap.get("<%=solrServer%>");
 	if(solrServer<%=cid%> == null) {
 		throw new IllegalArgumentException("Solr server is null, component(<%=cid%>) not connected to a tSolrConnection!");
 	}
-
+	
 	java.util.List<Object> talendParameters<%=cid%> = new java.util.ArrayList<Object>();
 <%
-	for (IConnection conn : node.getIncomingConnections()) {
-		IMetadataTable metadata = conn.getMetadataTable(); 
-		if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
-			for (IMetadataColumn column : metadata.getListColumns()) {
+	List<IMetadataTable> metadatas = node.getMetadataList();
+	if ((metadatas!=null) && (metadatas.size()>0)) {
+		IMetadataTable metadata = metadatas.get(0);
+		if (metadata!=null) {
+			for (IConnection conn : node.getIncomingConnections()) {
+				if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+					for (IMetadataColumn column : metadata.getListColumns()) {
 %>			
-				talendParameters<%=cid%>.add(<%=conn.getName() %>.<%=column.getLabel() %>);
+							talendParameters<%=cid%>.add(<%=conn.getName() %>.<%=column.getLabel() %>);
+							System.out.println("<%=conn.getName() %>:"+<%=conn.getName() %>.<%=column.getLabel() %>);
 <%
+					}
+				}
 			}
 		}
-	}	
-	
-	String start = ElementParameterParser.getValue(node, "__ROWSTART__");     
-	if ((start==null) || (start.length()==0)) {
-		start = "0";
 	}
-	String rows = ElementParameterParser.getValue(node, "__ROWSIZE__");     
-	if ((rows==null) || (rows.length()==0)) {
-		rows = "10";
-	}
-	
 %>
-	org.apache.solr.client.solrj.SolrQuery query<%=cid%> = new org.apache.solr.client.solrj.SolrQuery(String.format(<%=ElementParameterParser.getValue(node, "__QUERY__")%>, (Object[]) talendParameters<%=cid%>.toArray(new Object[talendParameters<%=cid%>.size()])));
-
-	query<%=cid%>.setStart(<%=start%>);
-	query<%=cid%>.setRows(<%=rows%>);
-
-	org.apache.solr.client.solrj.response.QueryResponse response<%=cid%> = solrServer<%=cid%>.query(query<%=cid%>);
-	
-	if (response<%=cid%>.getResults().size()==0) {
-<%
-		for (IConnection conn : node.getOutgoingConnections()) {
-			IMetadataTable metadata = conn.getMetadataTable(); 
-			if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
-				for (IMetadataColumn column : metadata.getListColumns()) {
-%>	
-	<%=conn.getName() %>.<%=column.getLabel() %> = null;
-<%
-				}
-			}
-		}	
-%> 	}
-
-	for (org.apache.solr.common.SolrDocument doc<%=cid%> : response<%=cid%>.getResults()) {
-<%
-		for (IConnection conn : node.getOutgoingConnections()) {
-			IMetadataTable metadata = conn.getMetadataTable(); 
-			if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
-				for (IMetadataColumn column : metadata.getListColumns()) {
-					String classType = null;
-					if ("id_List".equals(column.getTalendType())) {
-						classType = "java.util.List";
-					} else if ("id_BigDecimal".equals(column.getTalendType())) {
-						classType = "java.lang.Double";
-					} else if ("id_Boolean".equals(column.getTalendType())) {
-						classType = "java.lang.Boolean";
-					} else if ("id_Byte".equals(column.getTalendType())) {
-						classType = "java.lang.Byte";
-					} else if ("id_byte[]".equals(column.getTalendType())) {
-						classType = "java.lang.Byte[]";
-					} else if ("id_Character".equals(column.getTalendType())) {
-						classType = "java.lang.Character";
-					} else if ("id_Date".equals(column.getTalendType())) {
-						classType = "java.util.Date";
-					} else if ("id_Double".equals(column.getTalendType())) {
-						classType = "java.lang.Double";
-					} else if ("id_Float".equals(column.getTalendType())) {
-						classType = "java.lang.Float";
-					} else if ("id_Integer".equals(column.getTalendType())) {
-						classType = "java.lang.Integer";
-					} else if ("id_Long".equals(column.getTalendType())) {
-						classType = "java.lang.Long";
-					} else if ("id_Object".equals(column.getTalendType())) {
-						classType = "java.lang.Object";
-					} else if ("id_Short".equals(column.getTalendType())) {
-						classType = "java.lang.Integer";
-					} else {
-						classType = "java.lang.String";
-					}					
-%>	
-	<%=conn.getName() %>.<%=column.getLabel() %> = (<%=classType%>) doc<%=cid%>.getFieldValue("<%=column.getLabel() %>");
-<%
-				}
-			}
-		}	
+	org.apache.solr.client.solrj.SolrQuery query<%=cid%> = new org.apache.solr.client.solrj.SolrQuery(String.format("<%=ElementParameterParser.getValue(node, "__QUERY__")%>", (Object[]) talendParameters<%=cid%>.toArray(new Object[talendParameters<%=cid%>.size()])));
+	query<%=cid%>.setStart(0);
+	query<%=cid%>.setRows(<%=ElementParameterParser.getValue(node, "__ROWSIZE__")%>);
+	org.apache.solr.client.solrj.QueryResponse response = solrServer<%=cid%>.query(org.apache.solr.common.params.SolrParams.toSolrParams(query.toNamedList()));
+<% 
+	for (IConnection conn : node.getOutgoingSortedConnections()) {
+		if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
 %>
+	for (org.apache.solr.common.SolrDocument item : response<%=cid%>.getResults()) {
+		for (String key : item.keySet()) {
+			<%=conn.getName()%>.key = item.get(key);
+		}
 	}
-	
-	globalMap.put("<%=cid %>_NB_LINE",response<%=cid%>.getResults().size());
+<%
+		}
+	}
+%>	
+	globalMap.put("<%=cid %>_NB_LINE",result<%=cid %>.size());
